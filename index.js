@@ -1,25 +1,36 @@
 // Your code here
 var form=document.querySelector('#weather-app form')
 var weatherEl=document.getElementById('weather')
+var h2=document.createElement('h2')
 
 var weatherUrl = "https://api.openweathermap.org/data/2.5/weather"
 
 form.addEventListener('submit', function(e){
     e.preventDefault();
     var userQuery=this.search.value
+    if (!userQuery) return
     var queryString = "?units=imperial&appid=eaa52095952f3eaa180f48bf7902508c&q=" + userQuery
     var fetchURL = weatherUrl + queryString
     fetch(fetchURL)
     .then(function(res){
+        if (res.status !== 200){
+            throw new Error('Location not found')
+        } 
         return res.json()
     })
     .then(renderedCity)
+    .catch(function(err) {
+        weatherEl.innerHTML=''
+        h2.textContent=err.message
+        weatherEl.appendChild(h2)
+        form.search.value=''
+    })
 })
 
 function renderedCity(city){
-    weatherEl.textContent=''
+    weatherEl.innerHTML=''
+    form.search.value=''
 
-    var h2=document.createElement('h2')
     h2.textContent=city.name+", "+city.sys.country
     weatherEl.appendChild(h2)
 
